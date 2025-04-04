@@ -32,6 +32,8 @@ class MainUI(app: Application) {
   private var submitButton: Option[Button] = None
   private var summaryStage: Option[Stage] = None
   private var mainStage: Option[Stage] = None
+  private var counterLabel: Option[Label] = None
+  private var processedCount: Long = 0
 
   def setMainStage(stage: Stage): Unit = {
     mainStage = Some(stage)
@@ -168,11 +170,27 @@ class MainUI(app: Application) {
     }
   }
 
+  private def createCounterLabel(): Label = {
+    new Label {
+      setId("counterLabel")
+      setStyle("-fx-text-fill: #333333; -fx-font-size: 14px; -fx-font-weight: bold;")
+      setText("Processed: 0")
+    }
+  }
+
+  def updateCounter(): Unit = {
+    processedCount += 1
+    counterLabel.foreach(_.setText(s"Processed: $processedCount"))
+  }
+
   def showSummaryWindow(summary: List[(HTML_URL, GeminiSummary)]): Unit = {
     println(s"Showing summary window with ${summary.size} items")
     // Close existing window if any
     summaryStage.foreach(_.close())
     summaryStage = None
+    
+    // Reset counter
+    processedCount = 0
     
     // Create new window
     println("Creating new summary window")
@@ -187,10 +205,19 @@ class MainUI(app: Application) {
     summaryStage = Some(stage)
 
     val loadingIndicator = createLoadingIndicator()
+    val counter = createCounterLabel()
+    counterLabel = Some(counter)
+    
+    val topBar = new javafx.scene.layout.HBox {
+      setSpacing(10)
+      setAlignment(javafx.geometry.Pos.CENTER_LEFT)
+      getChildren.addAll(loadingIndicator, counter)
+    }
+    
     val vbox = new VBox {
       setSpacing(10)
       setPadding(new Insets(20))
-      getChildren.addAll(loadingIndicator, createTableView(List.empty), createCloseButton(stage))
+      getChildren.addAll(topBar, createTableView(List.empty), createCloseButton(stage))
     }
 
     val scene = new Scene(vbox) {

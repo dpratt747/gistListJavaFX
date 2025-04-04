@@ -29,7 +29,7 @@ class MainApp extends Application {
         ai = GeminiLLMImpl.make(config.gemini)
         streamProcessor = StreamProcessingImpl.make(config, githubRequests, ai)
 
-        gistStream = githubRequests.getAllPublicGists
+        gistStream = githubRequests.getAllPublicGists.take(5)
         fileContentsStream = streamProcessor.getFileContentsStream(gistStream)
         geminiResultsStream = streamProcessor.getGeminiSummary(fileContentsStream)
 
@@ -38,6 +38,7 @@ class MainApp extends Application {
             println(s"Processing summary for URL: $url")
             Platform.runLater(() => {
               ui.updateSummaryWindow(url, summary)
+              ui.updateCounter()
             })
           }
         }.compile.drain.timeout(5.minutes)
