@@ -342,6 +342,21 @@ class MainUI(app: Application) {
       })
     }
     submitButton = Some(button)
+    
+    // Function to check if both fields are filled
+    def updateButtonState(): Unit = {
+      val githubKeyFilled = githubField.getText != null && githubField.getText.trim.nonEmpty
+      val geminiKeyFilled = geminiField.getText != null && geminiField.getText.trim.nonEmpty
+      button.setDisable(!(githubKeyFilled && geminiKeyFilled))
+    }
+    
+    // Add listeners to both text fields
+    githubField.textProperty().addListener((_, _, _) => updateButtonState())
+    geminiField.textProperty().addListener((_, _, _) => updateButtonState())
+    
+    // Initial state
+    updateButtonState()
+    
     button
   }
 
