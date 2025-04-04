@@ -357,8 +357,12 @@ class MainUI(app: Application) {
     showSummariesButton = Some(summariesButton)
     val buttonContainer = new javafx.scene.layout.HBox {
       setSpacing(10)
-      setAlignment(javafx.geometry.Pos.CENTER_LEFT)
-      getChildren.addAll(submitButton, loadingIndicator, summariesButton)
+      setAlignment(javafx.geometry.Pos.CENTER)
+      val leftSpacer = new javafx.scene.layout.Region
+      val rightSpacer = new javafx.scene.layout.Region
+      javafx.scene.layout.HBox.setHgrow(leftSpacer, javafx.scene.layout.Priority.ALWAYS)
+      javafx.scene.layout.HBox.setHgrow(rightSpacer, javafx.scene.layout.Priority.ALWAYS)
+      getChildren.addAll(leftSpacer, submitButton, loadingIndicator, summariesButton, rightSpacer)
     }
 
     val vbox = new VBox {

@@ -29,7 +29,7 @@ class MainApp extends Application {
         ai = GeminiLLMImpl.make(config.gemini)
         streamProcessor = StreamProcessingImpl.make(config, githubRequests, ai)
 
-        gistStream = githubRequests.getAllPublicGists.take(5)
+        gistStream = githubRequests.getAllPublicGists
         fileContentsStream = streamProcessor.getFileContentsStream(gistStream)
         geminiResultsStream = streamProcessor.getGeminiSummary(fileContentsStream)
 
