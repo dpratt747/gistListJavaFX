@@ -35,6 +35,7 @@ class MainUI(app: Application) {
   private var counterLabel: Option[Label] = None
   private var processedCount: Long = 0
   private var mainLoadingIndicator: Option[ProgressBar] = None
+  private var currentSummaries: List[(HTML_URL, GeminiSummary)] = List.empty
 
   def setMainStage(stage: Stage): Unit = {
     mainStage = Some(stage)
@@ -162,6 +163,9 @@ class MainUI(app: Application) {
   }
 
   def updateSummaryWindow(url: HTML_URL, summary: GeminiSummary): Unit = {
+    // Store the new summary
+    currentSummaries = currentSummaries :+ (url, summary)
+    
     summaryStage.foreach { stage =>
       val tableView = stage.getScene.lookup("#summaryTableView").asInstanceOf[TableView[SummaryRow]]
       if (tableView != null) {
@@ -172,14 +176,6 @@ class MainUI(app: Application) {
       } else {
         println("Error: Could not find table view in scene")
       }
-    }
-  }
-
-  private def createCounterLabel(): Label = {
-    new Label {
-      setId("counterLabel")
-      setStyle("-fx-text-fill: #333333; -fx-font-size: 14px; -fx-font-weight: bold;")
-      setText("Processed: 0")
     }
   }
 
@@ -194,8 +190,8 @@ class MainUI(app: Application) {
     summaryStage.foreach(_.close())
     summaryStage = None
     
-    // Reset counter
-    processedCount = 0
+    // Set counter to current number of summaries
+    processedCount = currentSummaries.size
     
     // Create new window
     println("Creating new summary window")
@@ -212,6 +208,8 @@ class MainUI(app: Application) {
     val loadingIndicator = createLoadingIndicator()
     val counter = createCounterLabel()
     counterLabel = Some(counter)
+    // Update counter text with current count
+    counter.setText(s"Processed: $processedCount")
     
     val topBar = new javafx.scene.layout.HBox {
       setSpacing(10)
@@ -222,7 +220,7 @@ class MainUI(app: Application) {
     val vbox = new VBox {
       setSpacing(10)
       setPadding(new Insets(20))
-      getChildren.addAll(topBar, createTableView(List.empty), createCloseButton(stage))
+      getChildren.addAll(topBar, createTableView(currentSummaries), createCloseButton(stage))
     }
 
     val scene = new Scene(vbox) {
@@ -285,6 +283,26 @@ class MainUI(app: Application) {
     mainLoadingIndicator.foreach(_.setVisible(show))
   }
 
+  private def createCounterLabel(): Label = {
+    new Label {
+      setId("counterLabel")
+      setStyle("-fx-text-fill: #333333; -fx-font-size: 14px; -fx-font-weight: bold;")
+      setText("Processed: 0")
+    }
+  }
+
+  private def createShowSummariesButton(): Button = {
+    new Button {
+      setText("Show Summaries")
+      setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;")
+      setOnAction(_ => {
+        if (currentSummaries.nonEmpty) {
+          showSummaryWindow(currentSummaries)
+        }
+      })
+    }
+  }
+
   def createMainScene(
     savedKeys: Option[ApiKeys],
     onSubmit: (String, String) => Unit
@@ -303,10 +321,11 @@ class MainUI(app: Application) {
     mainLoadingIndicator = Some(loadingIndicator)
 
     val submitButton = createSubmitButton(githubField, geminiField, saveCheckbox, onSubmit)
+    val showSummariesButton = createShowSummariesButton()
     val buttonContainer = new javafx.scene.layout.HBox {
       setSpacing(10)
       setAlignment(javafx.geometry.Pos.CENTER_LEFT)
-      getChildren.addAll(submitButton, loadingIndicator)
+      getChildren.addAll(submitButton, loadingIndicator, showSummariesButton)
     }
 
     val vbox = new VBox {
