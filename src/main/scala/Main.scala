@@ -99,7 +99,7 @@ object Main {
     // Start JavaFX on the main thread
     Platform.startup(() => {})
     // Launch the application
-    Application.launch(classOf[MainApp], args*)
+    Application.launch(classOf[MainApp], args *)
   }
 }
   

@@ -5,8 +5,14 @@ ThisBuild / scalaVersion := "3.6.4"
 lazy val root = (project in file("."))
   .settings(
     name := "GistLLMJ",
-    fork := true
+    fork := true,
+    assembly / mainClass := Some("Main")
   )
+
+assembly / assemblyMergeStrategy := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x                             => MergeStrategy.first
+}
 
 lazy val catsDeps = Seq(
   "org.typelevel" %% "cats-core" % "2.13.0",

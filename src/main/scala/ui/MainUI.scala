@@ -11,7 +11,7 @@ import javafx.collections.FXCollections
 import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.control.*
-import javafx.scene.layout.VBox
+import javafx.scene.layout.{HBox, VBox}
 import javafx.scene.paint.Color
 import javafx.stage.{Stage, StageStyle}
 
@@ -54,7 +54,8 @@ class MainUI(app: Application) {
 
   def loadKeys(): Option[ApiKeys] = {
     if (Files.exists(keysFile)) {
-      val json = new String(Files.readAllBytes(keysFile), StandardCharsets.UTF_8)
+      val json =
+        new String(Files.readAllBytes(keysFile), StandardCharsets.UTF_8)
       decode[ApiKeys](json).toOption
     } else None
   }
@@ -66,59 +67,71 @@ class MainUI(app: Application) {
 
   private def createUrlColumn: TableColumn[SummaryRow, String] = {
     new TableColumn[SummaryRow, String]("Gist URL") {
-      setCellValueFactory(cellData => new SimpleStringProperty(cellData.getValue.url))
-      setCellFactory(_ => new javafx.scene.control.TableCell[SummaryRow, String] {
-        val hyperlink = new Hyperlink
-        setGraphic(hyperlink)
-        setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY)
-        itemProperty().addListener((_, _, newValue) => {
-          if (newValue != null) {
-            hyperlink.setText(newValue)
-            hyperlink.setOnAction(_ => app.getHostServices.showDocument(newValue))
-          }
-        })
-      })
+      setCellValueFactory(cellData =>
+        new SimpleStringProperty(cellData.getValue.url)
+      )
+      setCellFactory(_ =>
+        new javafx.scene.control.TableCell[SummaryRow, String] {
+          val hyperlink = new Hyperlink
+          setGraphic(hyperlink)
+          setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY)
+          itemProperty().addListener((_, _, newValue) => {
+            if (newValue != null) {
+              hyperlink.setText(newValue)
+              hyperlink.setOnAction(_ =>
+                app.getHostServices.showDocument(newValue)
+              )
+            }
+          })
+        }
+      )
       setPrefWidth(300)
     }
   }
 
   private def createSummaryColumn: TableColumn[SummaryRow, String] = {
     new TableColumn[SummaryRow, String]("Summary") {
-      setCellValueFactory(cellData => new SimpleStringProperty(cellData.getValue.summary))
+      setCellValueFactory(cellData =>
+        new SimpleStringProperty(cellData.getValue.summary)
+      )
       setPrefWidth(500)
-      setCellFactory(_ => new javafx.scene.control.TableCell[SummaryRow, String] {
-        setWrapText(true)
-        setStyle("-fx-alignment: CENTER-LEFT;")
-        itemProperty().addListener((_, _, newValue) => {
-          if (newValue != null) {
-            setText(newValue)
-            setTooltip(new Tooltip(newValue))
-          }
-        })
-        setOnMouseClicked(_ => {
-          if (getText != null) {
-            val dialog = new TextArea(getText) {
-              setWrapText(true)
-              setEditable(false)
-              setPrefRowCount(10)
-              setPrefColumnCount(80)
+      setCellFactory(_ =>
+        new javafx.scene.control.TableCell[SummaryRow, String] {
+          setWrapText(true)
+          setStyle("-fx-alignment: CENTER-LEFT;")
+          itemProperty().addListener((_, _, newValue) => {
+            if (newValue != null) {
+              setText(newValue)
+              setTooltip(new Tooltip(newValue))
             }
-            val dialogStage = new Stage(StageStyle.DECORATED) {
-              setTitle("Full Summary")
-              setScene(new Scene(dialog) {
-                setFill(Color.WHITE)
-              })
-              setWidth(600)
-              setHeight(400)
+          })
+          setOnMouseClicked(_ => {
+            if (getText != null) {
+              val dialog = new TextArea(getText) {
+                setWrapText(true)
+                setEditable(false)
+                setPrefRowCount(10)
+                setPrefColumnCount(80)
+              }
+              val dialogStage = new Stage(StageStyle.DECORATED) {
+                setTitle("Full Summary")
+                setScene(new Scene(dialog) {
+                  setFill(Color.WHITE)
+                })
+                setWidth(600)
+                setHeight(400)
+              }
+              dialogStage.show()
             }
-            dialogStage.show()
-          }
-        })
-      })
+          })
+        }
+      )
     }
   }
 
-  private def createTableView(summary: List[(HTML_URL, GeminiSummary)]): TableView[SummaryRow] = {
+  private def createTableView(
+      summary: List[(HTML_URL, GeminiSummary)]
+  ): TableView[SummaryRow] = {
     println(s"Creating table view with ${summary.size} items")
     val tableView = new TableView[SummaryRow] {
       setId("summaryTableView")
@@ -128,15 +141,21 @@ class MainUI(app: Application) {
 
     tableView.getColumns.setAll(createUrlColumn, createSummaryColumn)
     if (summary.isEmpty) {
-      tableView.setPlaceholder(new Label("Loading gist summaries... Please enter your API keys and click Submit.") {
-        setStyle("-fx-text-fill: #666666; -fx-font-size: 14px;")
-      })
+      tableView.setPlaceholder(
+        new Label(
+          "Loading gist summaries... Please enter your API keys and click Submit."
+        ) {
+          setStyle("-fx-text-fill: #666666; -fx-font-size: 14px;")
+        }
+      )
     } else {
       tableView.setPlaceholder(null)
       val items = FXCollections.observableArrayList(
-        summary.map { case (url, summary) => 
-          val row = SummaryRow(url.toString, summary.getString.replaceAll("\n", " ").trim)
-          println(s"Adding row: ${row.url} - ${row.summary}")
+        summary.map { case (url, summary) =>
+          val row = SummaryRow(
+            url.toString,
+            summary.getString.replaceAll("\n", " ").trim
+          )
           row
         }*
       )
@@ -170,7 +189,9 @@ class MainUI(app: Application) {
 
   def showLoadingIndicator(show: Boolean): Unit = {
     summaryStage.foreach { stage =>
-      val loadingIndicator = stage.getScene.lookup("#loadingIndicator").asInstanceOf[ProgressIndicator]
+      val loadingIndicator = stage.getScene
+        .lookup("#loadingIndicator")
+        .asInstanceOf[ProgressIndicator]
       if (loadingIndicator != null) {
         loadingIndicator.setVisible(show)
       }
@@ -190,12 +211,15 @@ class MainUI(app: Application) {
     currentSummaries = currentSummaries :+ (url, summary)
     // Enable the show summaries button when we have summaries
     showSummariesButton.foreach(_.setDisable(false))
-    
+
     summaryStage.foreach { stage =>
-      val tableView = stage.getScene.lookup("#summaryTableView").asInstanceOf[TableView[SummaryRow]]
+      val tableView = stage.getScene
+        .lookup("#summaryTableView")
+        .asInstanceOf[TableView[SummaryRow]]
       if (tableView != null) {
         val currentItems = tableView.getItems
-        val newRow = SummaryRow(url.toString, summary.getString.replaceAll("\n", " ").trim)
+        val newRow =
+          SummaryRow(url.toString, summary.getString.replaceAll("\n", " ").trim)
         currentItems.add(newRow)
         println(s"Added new summary: ${newRow.url}")
       } else {
@@ -214,10 +238,10 @@ class MainUI(app: Application) {
     // Close existing window if any
     summaryStage.foreach(_.close())
     summaryStage = None
-    
+
     // Set counter to current number of summaries
     processedCount = currentSummaries.size
-    
+
     // Create new window
     println("Creating new summary window")
     val stage = new Stage(StageStyle.DECORATED) {
@@ -235,17 +259,21 @@ class MainUI(app: Application) {
     counterLabel = Some(counter)
     // Update counter text with current count
     counter.setText(s"Processed: $processedCount")
-    
+
     val topBar = new javafx.scene.layout.HBox {
       setSpacing(10)
       setAlignment(javafx.geometry.Pos.CENTER_LEFT)
       getChildren.addAll(loadingIndicator, counter)
     }
-    
+
     val vbox = new VBox {
       setSpacing(10)
       setPadding(new Insets(20))
-      getChildren.addAll(topBar, createTableView(currentSummaries), createCloseButton(stage))
+      getChildren.addAll(
+        topBar,
+        createTableView(currentSummaries),
+        createCloseButton(stage)
+      )
     }
 
     val scene = new Scene(vbox) {
@@ -265,10 +293,15 @@ class MainUI(app: Application) {
     }
   }
 
-  private def createTextField(prompt: String, initialValue: String): TextField = {
+  private def createTextField(
+      prompt: String,
+      initialValue: String
+  ): TextField = {
     new TextField {
       setPromptText(prompt)
-      setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-prompt-text-fill: #888888;")
+      setStyle(
+        "-fx-background-color: #333333; -fx-text-fill: white; -fx-prompt-text-fill: #888888;"
+      )
       setText(initialValue)
     }
   }
@@ -282,10 +315,10 @@ class MainUI(app: Application) {
   }
 
   private def createSubmitButton(
-    githubField: TextField,
-    geminiField: TextField,
-    saveCheckbox: CheckBox,
-    onSubmit: (String, String) => Unit
+      githubField: TextField,
+      geminiField: TextField,
+      saveCheckbox: CheckBox,
+      onSubmit: (String, String) => Unit
   ): Button = {
     val button = new Button {
       setText("Get Gists Summaries")
@@ -312,7 +345,9 @@ class MainUI(app: Application) {
   private def createCounterLabel(): Label = {
     new Label {
       setId("counterLabel")
-      setStyle("-fx-text-fill: #333333; -fx-font-size: 14px; -fx-font-weight: bold;")
+      setStyle(
+        "-fx-text-fill: #333333; -fx-font-size: 14px; -fx-font-weight: bold;"
+      )
       setText("Processed: 0")
     }
   }
@@ -336,11 +371,17 @@ class MainUI(app: Application) {
   }
 
   def createMainScene(
-    savedKeys: Option[ApiKeys],
-    onSubmit: (String, String) => Unit
+      savedKeys: Option[ApiKeys],
+      onSubmit: (String, String) => Unit
   ): Scene = {
-    val githubField = createTextField("Enter GitHub API Key", savedKeys.map(_.githubKey).getOrElse(""))
-    val geminiField = createTextField("Enter Gemini API Key", savedKeys.map(_.geminiKey).getOrElse(""))
+    val githubField = createTextField(
+      "Enter GitHub API Key",
+      savedKeys.map(_.githubKey).getOrElse("")
+    )
+    val geminiField = createTextField(
+      "Enter Gemini API Key",
+      savedKeys.map(_.geminiKey).getOrElse("")
+    )
     val saveCheckbox = createCheckBox
 
     val loadingIndicator = new ProgressBar {
@@ -352,18 +393,29 @@ class MainUI(app: Application) {
     }
     mainLoadingIndicator = Some(loadingIndicator)
 
-    val submitButton = createSubmitButton(githubField, geminiField, saveCheckbox, onSubmit)
+    val submitButton =
+      createSubmitButton(githubField, geminiField, saveCheckbox, onSubmit)
     val summariesButton = createShowSummariesButton()
     showSummariesButton = Some(summariesButton)
-    val buttonContainer = new javafx.scene.layout.HBox {
+    val buttonContainer: HBox = new javafx.scene.layout.HBox {
       setSpacing(10)
       setAlignment(javafx.geometry.Pos.CENTER)
       val leftSpacer = new javafx.scene.layout.Region
       val rightSpacer = new javafx.scene.layout.Region
-      javafx.scene.layout.HBox.setHgrow(leftSpacer, javafx.scene.layout.Priority.ALWAYS)
-      javafx.scene.layout.HBox.setHgrow(rightSpacer, javafx.scene.layout.Priority.ALWAYS)
-      getChildren.addAll(leftSpacer, submitButton, loadingIndicator, summariesButton, rightSpacer)
+      javafx.scene.layout.HBox
+        .setHgrow(leftSpacer, javafx.scene.layout.Priority.ALWAYS)
+      javafx.scene.layout.HBox
+        .setHgrow(rightSpacer, javafx.scene.layout.Priority.ALWAYS)
+      getChildren.addAll(
+        leftSpacer,
+        submitButton,
+        loadingIndicator,
+        summariesButton,
+        rightSpacer
+      )
     }
+    
+    
 
     val vbox = new VBox {
       setSpacing(10)
