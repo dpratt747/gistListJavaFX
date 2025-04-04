@@ -11,5 +11,5 @@ gemini api key here:
 ## To build:
 ```bash
 sbt assembly
-scala ./target/scala-3.6.4/GistLLMJ-assembly-0.1.0-SNAPSHOT.jar
+scala ./target/scala-3.6.4/gists.jar
 ```

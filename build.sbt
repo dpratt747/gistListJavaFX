@@ -6,7 +6,8 @@ lazy val root = (project in file("."))
   .settings(
     name := "GistLLMJ",
     fork := true,
-    assembly / mainClass := Some("Main")
+    assembly / mainClass := Some("Main"),
+    assembly / assemblyJarName := "gists.jar",
   )
 
 assembly / assemblyMergeStrategy := {
