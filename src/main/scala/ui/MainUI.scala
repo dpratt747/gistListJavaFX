@@ -327,7 +327,7 @@ class MainUI(app: Application) {
                                   githubField: TextField,
                                   geminiField: TextField,
                                   saveCheckbox: CheckBox,
-                                  onSubmit: (String, String) => Unit
+                                  onSubmit: (String, String, Boolean) => Unit
                                 ): Button = {
     val button = new Button {
       setText("Get Gists Summaries")
@@ -336,9 +336,7 @@ class MainUI(app: Application) {
         val githubAPIKey = githubField.getText
         val geminiKey = geminiField.getText
 
-        if (saveCheckbox.isSelected) {
-          onSubmit(githubAPIKey, geminiKey)
-        }
+        onSubmit(githubAPIKey, geminiKey, saveCheckbox.isSelected)
         setDisable(true)
         showSummariesButton(true)
       })
@@ -381,7 +379,7 @@ class MainUI(app: Application) {
 
   def createMainScene(
                        savedKeys: Option[ApiKeys],
-                       onSubmit: (String, String) => Unit
+                       onSubmit: (String, String, Boolean) => Unit
                      ): Scene = {
     val githubField = createTextField(
       "Enter GitHub API Key",

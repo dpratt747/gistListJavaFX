@@ -81,8 +81,10 @@ class MainApp extends Application {
       primaryStage.setHeight(300)
 
       val savedKeys = ui.loadKeys()
-      val scene = ui.createMainScene(savedKeys, (githubKey, geminiKey) => {
-        ui.saveKeys(ApiKeys(githubKey, geminiKey))
+      val scene = ui.createMainScene(savedKeys, (githubKey, geminiKey, shouldSave) => {
+        if (shouldSave) {
+          ui.saveKeys(ApiKeys(githubKey, geminiKey))
+        }
         processKeys(githubKey, geminiKey)
       })
 
