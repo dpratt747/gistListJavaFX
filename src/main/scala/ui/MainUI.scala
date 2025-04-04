@@ -260,7 +260,7 @@ class MainUI(app: Application) {
     onSubmit: (String, String) => Unit
   ): Button = {
     val button = new Button {
-      setText("Submit Keys")
+      setText("Get Gists Summaries")
       setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;")
       setOnAction(_ => {
         val githubAPIKey = githubField.getText
