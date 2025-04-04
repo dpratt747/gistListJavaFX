@@ -1,5 +1,5 @@
+import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import cats.effect.{ExitCode, IO, IOApp}
 import configuration.*
 import http.requests.{GeminiLLMImpl, GithubRequestsImpl}
 import javafx.application.{Application, Platform}
@@ -29,7 +29,7 @@ class MainApp extends Application {
         ai = GeminiLLMImpl.make(config.gemini)
         streamProcessor = StreamProcessingImpl.make(config, githubRequests, ai)
 
-        gistStream = githubRequests.getAllPublicGists.take(5)
+        gistStream = githubRequests.getAllPublicGists
         fileContentsStream = streamProcessor.getFileContentsStream(gistStream)
         geminiResultsStream = streamProcessor.getGeminiSummary(fileContentsStream)
 
@@ -50,6 +50,7 @@ class MainApp extends Application {
       ui.showSummaryWindow(List.empty)
       ui.showLoadingIndicator(true)
       ui.disableSubmitButton()
+      ui.showMainLoadingIndicator(true)
     })
 
     // Run processing in a separate thread
@@ -63,6 +64,7 @@ class MainApp extends Application {
         Platform.runLater(() => {
           ui.reenableSubmitButton()
           ui.showLoadingIndicator(false)
+          ui.showMainLoadingIndicator(false)
         })
       }
     }).start()

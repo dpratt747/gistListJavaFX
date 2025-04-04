@@ -34,6 +34,7 @@ class MainUI(app: Application) {
   private var mainStage: Option[Stage] = None
   private var counterLabel: Option[Label] = None
   private var processedCount: Long = 0
+  private var mainLoadingIndicator: Option[ProgressBar] = None
 
   def setMainStage(stage: Stage): Unit = {
     mainStage = Some(stage)
@@ -280,6 +281,10 @@ class MainUI(app: Application) {
     button
   }
 
+  def showMainLoadingIndicator(show: Boolean): Unit = {
+    mainLoadingIndicator.foreach(_.setVisible(show))
+  }
+
   def createMainScene(
     savedKeys: Option[ApiKeys],
     onSubmit: (String, String) => Unit
@@ -287,6 +292,22 @@ class MainUI(app: Application) {
     val githubField = createTextField("Enter GitHub API Key", savedKeys.map(_.githubKey).getOrElse(""))
     val geminiField = createTextField("Enter Gemini API Key", savedKeys.map(_.geminiKey).getOrElse(""))
     val saveCheckbox = createCheckBox
+
+    val loadingIndicator = new ProgressBar {
+      setId("mainLoadingIndicator")
+      setVisible(false)
+      setStyle("-fx-accent: #4CAF50;")
+      setPrefWidth(200)
+      setProgress(-1.0)
+    }
+    mainLoadingIndicator = Some(loadingIndicator)
+
+    val submitButton = createSubmitButton(githubField, geminiField, saveCheckbox, onSubmit)
+    val buttonContainer = new javafx.scene.layout.HBox {
+      setSpacing(10)
+      setAlignment(javafx.geometry.Pos.CENTER_LEFT)
+      getChildren.addAll(submitButton, loadingIndicator)
+    }
 
     val vbox = new VBox {
       setSpacing(10)
@@ -297,7 +318,7 @@ class MainUI(app: Application) {
         createLabel("Gemini API Key"),
         geminiField,
         saveCheckbox,
-        createSubmitButton(githubField, geminiField, saveCheckbox, onSubmit)
+        buttonContainer
       )
     }
 
