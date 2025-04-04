@@ -36,6 +36,7 @@ class MainUI(app: Application) {
   private var processedCount: Long = 0
   private var mainLoadingIndicator: Option[ProgressBar] = None
   private var currentSummaries: List[(HTML_URL, GeminiSummary)] = List.empty
+  private var showSummariesButton: Option[Button] = None
 
   def setMainStage(stage: Stage): Unit = {
     mainStage = Some(stage)
@@ -89,7 +90,29 @@ class MainUI(app: Application) {
         setWrapText(true)
         setStyle("-fx-alignment: CENTER-LEFT;")
         itemProperty().addListener((_, _, newValue) => {
-          if (newValue != null) setText(newValue)
+          if (newValue != null) {
+            setText(newValue)
+            setTooltip(new Tooltip(newValue))
+          }
+        })
+        setOnMouseClicked(_ => {
+          if (getText != null) {
+            val dialog = new TextArea(getText) {
+              setWrapText(true)
+              setEditable(false)
+              setPrefRowCount(10)
+              setPrefColumnCount(80)
+            }
+            val dialogStage = new Stage(StageStyle.DECORATED) {
+              setTitle("Full Summary")
+              setScene(new Scene(dialog) {
+                setFill(Color.WHITE)
+              })
+              setWidth(600)
+              setHeight(400)
+            }
+            dialogStage.show()
+          }
         })
       })
     }
@@ -273,6 +296,7 @@ class MainUI(app: Application) {
           onSubmit(githubAPIKey, geminiKey)
         }
         setDisable(true)
+        showSummariesButton(true)
       })
     }
     submitButton = Some(button)
@@ -291,10 +315,15 @@ class MainUI(app: Application) {
     }
   }
 
+  def showSummariesButton(show: Boolean): Unit = {
+    showSummariesButton.foreach(_.setVisible(show))
+  }
+
   private def createShowSummariesButton(): Button = {
     new Button {
       setText("Show Summaries")
       setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;")
+      setVisible(false)
       setOnAction(_ => {
         if (currentSummaries.nonEmpty) {
           showSummaryWindow(currentSummaries)
@@ -321,11 +350,12 @@ class MainUI(app: Application) {
     mainLoadingIndicator = Some(loadingIndicator)
 
     val submitButton = createSubmitButton(githubField, geminiField, saveCheckbox, onSubmit)
-    val showSummariesButton = createShowSummariesButton()
+    val summariesButton = createShowSummariesButton()
+    showSummariesButton = Some(summariesButton)
     val buttonContainer = new javafx.scene.layout.HBox {
       setSpacing(10)
       setAlignment(javafx.geometry.Pos.CENTER_LEFT)
-      getChildren.addAll(submitButton, loadingIndicator, showSummariesButton)
+      getChildren.addAll(submitButton, loadingIndicator, summariesButton)
     }
 
     val vbox = new VBox {

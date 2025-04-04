@@ -29,7 +29,7 @@ class MainApp extends Application {
         ai = GeminiLLMImpl.make(config.gemini)
         streamProcessor = StreamProcessingImpl.make(config, githubRequests, ai)
 
-        gistStream = githubRequests.getAllPublicGists
+        gistStream = githubRequests.getAllPublicGists.take(5)
         fileContentsStream = streamProcessor.getFileContentsStream(gistStream)
         geminiResultsStream = streamProcessor.getGeminiSummary(fileContentsStream)
 
@@ -65,6 +65,7 @@ class MainApp extends Application {
           ui.reenableSubmitButton()
           ui.showLoadingIndicator(false)
           ui.showMainLoadingIndicator(false)
+          ui.showSummariesButton(true)
         })
       }
     }).start()
@@ -76,7 +77,7 @@ class MainApp extends Application {
       ui.showSummaryWindow(List.empty)
       // Show API keys window on top
       primaryStage.setTitle("API Keys Input")
-      primaryStage.setWidth(400)
+      primaryStage.setWidth(600)
       primaryStage.setHeight(300)
 
       val savedKeys = ui.loadKeys()
