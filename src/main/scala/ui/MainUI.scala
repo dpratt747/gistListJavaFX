@@ -156,6 +156,10 @@ class MainUI(app: Application) {
     submitButton.foreach(_.setDisable(false))
   }
 
+  def disableSubmitButton(): Unit = {
+    submitButton.foreach(_.setDisable(true))
+  }
+
   def updateSummaryWindow(url: HTML_URL, summary: GeminiSummary): Unit = {
     summaryStage.foreach { stage =>
       val tableView = stage.getScene.lookup("#summaryTableView").asInstanceOf[TableView[SummaryRow]]

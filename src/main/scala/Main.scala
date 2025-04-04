@@ -49,6 +49,7 @@ class MainApp extends Application {
     Platform.runLater(() => {
       ui.showSummaryWindow(List.empty)
       ui.showLoadingIndicator(true)
+      ui.disableSubmitButton()
     })
 
     // Run processing in a separate thread
