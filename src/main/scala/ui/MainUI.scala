@@ -188,6 +188,8 @@ class MainUI(app: Application) {
   def updateSummaryWindow(url: HTML_URL, summary: GeminiSummary): Unit = {
     // Store the new summary
     currentSummaries = currentSummaries :+ (url, summary)
+    // Enable the show summaries button when we have summaries
+    showSummariesButton.foreach(_.setDisable(false))
     
     summaryStage.foreach { stage =>
       val tableView = stage.getScene.lookup("#summaryTableView").asInstanceOf[TableView[SummaryRow]]
@@ -324,6 +326,7 @@ class MainUI(app: Application) {
       setText("Show Summaries")
       setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;")
       setVisible(false)
+      setDisable(true) // Initially disabled
       setOnAction(_ => {
         if (currentSummaries.nonEmpty) {
           showSummaryWindow(currentSummaries)
