@@ -130,8 +130,8 @@ class MainUI(app: Application) {
   }
 
   private def createTableView(
-      summary: List[(HTML_URL, GeminiSummary)]
-  ): TableView[SummaryRow] = {
+                               summary: List[(HTML_URL, GeminiSummary)]
+                             ): TableView[SummaryRow] = {
     println(s"Creating table view with ${summary.size} items")
     val tableView = new TableView[SummaryRow] {
       setId("summaryTableView")
@@ -157,7 +157,7 @@ class MainUI(app: Application) {
             summary.getString.replaceAll("\n", " ").trim
           )
           row
-        }*
+        } *
       )
       tableView.setItems(items)
       println(s"Table view created with ${items.size()} items")
@@ -293,10 +293,19 @@ class MainUI(app: Application) {
     }
   }
 
+  private def readmeLink(): Hyperlink = {
+    val hyperlink = new Hyperlink("README.md")
+    hyperlink.setOnAction(_ =>
+      app.getHostServices.showDocument("https://github.com/dpratt747/gistListJavaFX/blob/master/README.md")
+    )
+    hyperlink
+  }
+
+
   private def createTextField(
-      prompt: String,
-      initialValue: String
-  ): TextField = {
+                               prompt: String,
+                               initialValue: String
+                             ): TextField = {
     new TextField {
       setPromptText(prompt)
       setStyle(
@@ -315,11 +324,11 @@ class MainUI(app: Application) {
   }
 
   private def createSubmitButton(
-      githubField: TextField,
-      geminiField: TextField,
-      saveCheckbox: CheckBox,
-      onSubmit: (String, String) => Unit
-  ): Button = {
+                                  githubField: TextField,
+                                  geminiField: TextField,
+                                  saveCheckbox: CheckBox,
+                                  onSubmit: (String, String) => Unit
+                                ): Button = {
     val button = new Button {
       setText("Get Gists Summaries")
       setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;")
@@ -371,9 +380,9 @@ class MainUI(app: Application) {
   }
 
   def createMainScene(
-      savedKeys: Option[ApiKeys],
-      onSubmit: (String, String) => Unit
-  ): Scene = {
+                       savedKeys: Option[ApiKeys],
+                       onSubmit: (String, String) => Unit
+                     ): Scene = {
     val githubField = createTextField(
       "Enter GitHub API Key",
       savedKeys.map(_.githubKey).getOrElse("")
@@ -414,8 +423,7 @@ class MainUI(app: Application) {
         rightSpacer
       )
     }
-    
-    
+
 
     val vbox = new VBox {
       setSpacing(10)
@@ -426,7 +434,8 @@ class MainUI(app: Application) {
         createLabel("Gemini API Key"),
         geminiField,
         saveCheckbox,
-        buttonContainer
+        buttonContainer,
+        readmeLink()
       )
     }
 
