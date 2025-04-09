@@ -8,6 +8,11 @@ gemini api key here:
 
 -   To create an api key for gemini please view [here](https://docs.langchain4j.dev/integrations/language-models/google-ai-gemini/)
 
+## To run:
+```bash
+sbt run
+```
+
 ## To build:
 ```bash
 sbt assembly
